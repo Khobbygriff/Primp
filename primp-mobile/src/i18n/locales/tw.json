@@ -1,0 +1,30 @@
+{
+  "common": {
+    "save": "Sie Wo Ho Nsɛm",
+    "back": "San Kɔ",
+    "language": "Kasa"
+  },
+  "editProfile": {
+    "title": "Sesa Wo Ho Nsɛm",
+    "specialty": "Wo Adwuma *",
+    "bio": "Wo Ho Asɛm",
+    "bioPlaceholder": "Ka wo ho asɛm ne wo osuahu kyerɛ wo adɔfo...",
+    "availability": "Wo Ho A Wobɛtumi",
+    "availableTrue": "Adɔfo betumi ahu wo",
+    "availableFalse": "Adɔfo rentumi nhu wo",
+    "location": "Beaeɛ",
+    "phone": "Fon Nɔma",
+    "changePhoto": "Ka mfonini no so na wasesa"
+  },
+  "home": {
+    "greeting": "Akwaaba, {{name}} 👋",
+    "professionalAccount": "💼 Adwumayɛfo Akontaabu",
+    "clientAccount": "👤 Adɔfo Akontaabu",
+    "bookings": "Nhyehyɛe",
+    "unreadAlerts": "Amaneɛbɔ A Wonkanee"
+  },
+  "language_names": {
+    "en": "Borɔfo Kasa",
+    "tw": "Twi Kasa"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "common": {
+    "save": "Save Profile",
+    "back": "Back",
+    "language": "Language"
+  },
+  "editProfile": {
+    "title": "Edit Profile",
+    "specialty": "Specialty *",
+    "bio": "Bio",
+    "bioPlaceholder": "Tell clients about yourself and your experience...",
+    "availability": "Availability",
+    "availableTrue": "You are visible to clients",
+    "availableFalse": "You are hidden from clients",
+    "location": "Location",
+    "phone": "Phone",
+    "changePhoto": "Tap to change photo"
+  },
+  "home": {
+    "greeting": "Hello, {{name}} 👋",
+    "professionalAccount": "💼 Professional Account",
+    "clientAccount": "👤 Client Account",
+    "bookings": "Bookings",
+    "unreadAlerts": "Unread Alerts"
+  },
+  "language_names": {
+    "en": "English",
+    "tw": "Twi"
+  }
+}
