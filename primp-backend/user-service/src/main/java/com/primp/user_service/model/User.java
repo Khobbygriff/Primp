@@ -47,6 +47,7 @@ public class User {
         if (hasClientLoyaltyTools == null) hasClientLoyaltyTools = false;
         if (hasEarningsAnalytics == null) hasEarningsAnalytics = false;
         if (serviceRadiusKm == null) serviceRadiusKm = 15;
+        if (isSuspended == null) isSuspended = false;
     }
 
     @Column(name = "is_available")
@@ -89,6 +90,15 @@ public class User {
     // themselves discoverable from their work location. Defaults to 15km.
     @Column(name = "service_radius_km")
     private Integer serviceRadiusKm = 15;
+
+    @Column(name = "is_suspended")
+    private Boolean isSuspended = false;
+
+    @Column(name = "suspended_at")
+    private LocalDateTime suspendedAt;
+
+    @Column(name = "suspended_reason", length = 500)
+    private String suspendedReason;
 
     public enum Role {
         PROFESSIONAL, CLIENT, ADMIN
@@ -163,4 +173,13 @@ public class User {
 
     public Integer getServiceRadiusKm() { return serviceRadiusKm; }
     public void setServiceRadiusKm(Integer serviceRadiusKm) { this.serviceRadiusKm = serviceRadiusKm; }
+
+    public Boolean getIsSuspended() { return isSuspended; }
+    public void setIsSuspended(Boolean isSuspended) { this.isSuspended = isSuspended; }
+
+    public LocalDateTime getSuspendedAt() { return suspendedAt; }
+    public void setSuspendedAt(LocalDateTime suspendedAt) { this.suspendedAt = suspendedAt; }
+
+    public String getSuspendedReason() { return suspendedReason; }
+    public void setSuspendedReason(String suspendedReason) { this.suspendedReason = suspendedReason; }
 }

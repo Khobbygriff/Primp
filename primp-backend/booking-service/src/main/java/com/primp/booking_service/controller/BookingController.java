@@ -97,8 +97,9 @@ public class BookingController {
     @GetMapping("/{bookingId}/history")
     public ResponseEntity<List<BookingStatusHistoryResponse>> getBookingHistory(
             @RequestHeader("X-User-Id") Long authenticatedUserId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long bookingId) {
-        return ResponseEntity.ok(bookingService.getBookingHistory(bookingId, authenticatedUserId));
+        return ResponseEntity.ok(bookingService.getBookingHistory(bookingId, authenticatedUserId, role));
     }
 
     @GetMapping("/{bookingId}/receipt")
@@ -115,7 +116,8 @@ public class BookingController {
     @GetMapping("/{bookingId}")
     public ResponseEntity<BookingResponse> getBookingById(
             @RequestHeader("X-User-Id") Long authenticatedUserId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long bookingId) {
-        return ResponseEntity.ok(bookingService.getBookingById(bookingId, authenticatedUserId));
+        return ResponseEntity.ok(bookingService.getBookingById(bookingId, authenticatedUserId, role));
     }
 }

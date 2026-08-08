@@ -42,11 +42,17 @@ public class UserService {
             throw new RuntimeException("Email already registered");
         }
 
+        String requestedRole = request.getRole() == null ? "" : request.getRole().toUpperCase();
+        if ("ADMIN".equals(requestedRole)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Admin accounts cannot be created through public registration");
+        }
+
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(User.Role.valueOf(request.getRole().toUpperCase()));
+        user.setRole(User.Role.valueOf(requestedRole));
         user.setPhone(request.getPhone());
         user.setLocation(request.getLocation());
 
