@@ -26,6 +26,9 @@ public class PremiumPurchase {
     @Column(name = "duration")
     private String duration;
 
+    @Column(name = "amount")
+    private Double amount;
+
     @PrePersist
     protected void onCreate() {
         purchasedAt = LocalDateTime.now();
@@ -48,4 +51,7 @@ public class PremiumPurchase {
 
     public String getDuration() { return duration; }
     public void setDuration(String duration) { this.duration = duration; }
+
+    public Double getAmount() { return amount; }
+    public void setAmount(Double amount) { this.amount = amount; }
 }

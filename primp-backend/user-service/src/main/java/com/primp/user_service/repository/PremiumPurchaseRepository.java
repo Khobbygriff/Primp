@@ -8,4 +8,13 @@ import java.util.Optional;
 @Repository
 public interface PremiumPurchaseRepository extends JpaRepository<PremiumPurchase, Long> {
     Optional<PremiumPurchase> findByPaymentReference(String paymentReference);
+
+    @org.springframework.data.jpa.repository.Query(
+            "SELECT p FROM PremiumPurchase p WHERE " +
+                    "(:search IS NULL OR LOWER(p.paymentReference) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+                    "AND (:feature IS NULL OR p.feature = :feature)")
+    org.springframework.data.domain.Page<PremiumPurchase> search(
+            @org.springframework.data.repository.query.Param("search") String search,
+            @org.springframework.data.repository.query.Param("feature") String feature,
+            org.springframework.data.domain.Pageable pageable);
 }

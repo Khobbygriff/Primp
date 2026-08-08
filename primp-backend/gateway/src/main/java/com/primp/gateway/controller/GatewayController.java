@@ -1,13 +1,13 @@
 package com.primp.gateway.controller;
 
 import com.primp.gateway.security.JwtUtil;
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
 import java.util.Enumeration;
 
 @RestController
@@ -41,8 +41,8 @@ public class GatewayController {
         restTemplate.setRequestFactory(
                 new org.springframework.http.client.SimpleClientHttpRequestFactory() {
                     @Override
-                    protected void prepareConnection(java.net.HttpURLConnection connection,
-                                                     String httpMethod) throws java.io.IOException {
+                    protected void prepareConnection(@Nonnull java.net.HttpURLConnection connection,
+                                                     @Nonnull String httpMethod) throws java.io.IOException {
                         if ("PATCH".equals(httpMethod)) {
                             connection.setRequestMethod("POST");
                             connection.setRequestProperty("X-HTTP-Method-Override", "PATCH");
@@ -54,19 +54,13 @@ public class GatewayController {
     }
 
     @RequestMapping("/api/auth/**")
-    public ResponseEntity<String> forwardAuth(
-            HttpServletRequest request,
-            @RequestBody(required = false) String body) {
+    public ResponseEntity<String> forwardAuth(HttpServletRequest request, @RequestBody(required = false) String body) {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
         // Public endpoints don't need user ID
-        if (path.equals("/api/auth/register") ||
-                path.equals("/api/auth/login") ||
-                path.equals("/api/auth/professionals") ||
-                (path.startsWith("/api/auth/portfolio/") && method.equals("GET")) ||
-                (path.equals("/api/auth/portfolio/feed"))) {
-            return forward(request, body, userServiceUrl, null);
+        if (path.startsWith("/api/auth/webhooks/")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
         }
         // All other auth endpoints need user ID
         Long userId = extractUserId(request);
@@ -90,9 +84,10 @@ public class GatewayController {
     }
 
     @RequestMapping("/api/bookings/**")
-    public ResponseEntity<String> forwardBookings(
-            HttpServletRequest request,
-            @RequestBody(required = false) String body) {
+    public ResponseEntity<String> forwardBookings(HttpServletRequest request, @RequestBody(required = false) String body) {
+        if (request.getRequestURI().startsWith("/api/bookings/webhooks/")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
+        }
         Long userId = extractUserId(request);
         return forward(request, body, bookingServiceUrl, userId);
     }
@@ -114,6 +109,59 @@ public class GatewayController {
         }
         Long userId = extractUserId(request);
         return forward(request, body, notificationServiceUrl, userId);
+    }
+
+    @RequestMapping("/api/admin/users/**")
+    public ResponseEntity<String> forwardAdminUsers(
+            HttpServletRequest request,
+            @RequestBody(required = false) String body) {
+        ResponseEntity<String> denied = requireAdmin(request);
+        if (denied != null) return denied;
+        return forward(request, body, userServiceUrl, extractUserId(request));
+    }
+
+    @RequestMapping("/api/admin/premium-purchases/**")
+    public ResponseEntity<String> forwardAdminPremiumPurchases(
+            HttpServletRequest request,
+            @RequestBody(required = false) String body) {
+        ResponseEntity<String> denied = requireAdmin(request);
+        if (denied != null) return denied;
+        return forward(request, body, userServiceUrl, extractUserId(request));
+    }
+
+    @RequestMapping("/api/admin/bookings/**")
+    public ResponseEntity<String> forwardAdminBookings(
+            HttpServletRequest request,
+            @RequestBody(required = false) String body) {
+        ResponseEntity<String> denied = requireAdmin(request);
+        if (denied != null) return denied;
+        return forward(request, body, bookingServiceUrl, extractUserId(request));
+    }
+
+    /**
+     * Gate every /api/admin/** route at the edge, before it's even forwarded.
+     * Downstream services re-check this too (defense in depth — see
+     * AdminUserController etc.) since InternalServiceFilter alone only proves
+     * a request came through *a* gateway call, not that the caller is an admin.
+     */
+    private ResponseEntity<String> requireAdmin(HttpServletRequest request) {
+        String role = extractRole(request);
+        if (!"ADMIN".equals(role)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Admin access required");
+        }
+        return null;
+    }
+
+    private String extractRole(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            try {
+                return jwtUtil.extractRole(authHeader.substring(7));
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     private ResponseEntity<String> forward(HttpServletRequest request,
@@ -180,11 +228,10 @@ public class GatewayController {
             }
         }
 
-        // Prove to the downstream service that this request actually came
-        // through the gateway — set unconditionally (even for public auth
-        // endpoints with no userId) so every downstream service can enforce
-        // "gateway-only" access on all of its traffic, not just authenticated
-        // routes.
+        // Prove to the downstream service that this request actually came through the gateway
+        // set unconditionally (even for public auth endpoints with no userId) so every
+        // downstream service can enforce "gateway-only" access on all of its traffic,
+        // not just authenticated routes.
         headers.set("X-Internal-Secret", internalServiceSecret);
 
         // Inject user ID as header for downstream services

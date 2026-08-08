@@ -31,8 +31,9 @@ public class ReviewController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<ReviewResponse>> getReviewsForUser(
             @RequestHeader("X-User-Id") Long authenticatedUserId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long userId) {
-        if (!authenticatedUserId.equals(userId)) {
+        if (!authenticatedUserId.equals(userId) && !"ADMIN".equals(role)) {
             throw new ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Unauthorized");
         }
         return ResponseEntity.ok(reviewService.getReviewsForUser(userId));
@@ -41,8 +42,9 @@ public class ReviewController {
     @GetMapping("/by/{userId}")
     public ResponseEntity<List<ReviewResponse>> getReviewsByUser(
             @RequestHeader("X-User-Id") Long authenticatedUserId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long userId) {
-        if (!authenticatedUserId.equals(userId)) {
+        if (!authenticatedUserId.equals(userId) && !"ADMIN".equals(role)) {
             throw new ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Unauthorized");
         }
         return ResponseEntity.ok(reviewService.getReviewsByUser(userId));
@@ -51,8 +53,9 @@ public class ReviewController {
     @GetMapping("/summary/{userId}")
     public ResponseEntity<RatingSummary> getRatingSummary(
             @RequestHeader("X-User-Id") Long authenticatedUserId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long userId) {
-        if (!authenticatedUserId.equals(userId)) {
+        if (!authenticatedUserId.equals(userId) && !"ADMIN".equals(role)) {
             throw new ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Unauthorized");
         }
         return ResponseEntity.ok(reviewService.getRatingSummary(userId));

@@ -131,6 +131,38 @@ public class PremiumPaymentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This payment does not belong to you");
         }
 
+        return applyVerifiedPurchase(request.getReference(), data, metadata, verifiedUserId);
+    }
+
+    /** Entry point for the Paystack webhook — see BookingWebhookController's counterpart. */
+    @SuppressWarnings("unchecked")
+    public UserResponse processWebhookPayment(String reference) {
+        PremiumPurchase existing = premiumPurchaseRepository.findByPaymentReference(reference).orElse(null);
+        if (existing != null) {
+            return userService.getProfile(existing.getUserId());
+        }
+
+        Map<String, Object> data = paystackClient.verifyTransaction(reference);
+
+        String status = (String) data.get("status");
+        if (!"success".equals(status)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment was not successful (status: " + status + ")");
+        }
+
+        Map<String, Object> metadata = (Map<String, Object>) data.get("metadata");
+        if (metadata == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Payment record is missing purchase metadata");
+        }
+
+        Long userId = asLong(metadata.get("userId"));
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Payment record is missing the purchasing user");
+        }
+
+        return applyVerifiedPurchase(reference, data, metadata, userId);
+    }
+
+    private UserResponse applyVerifiedPurchase(String reference, Map<String, Object> data, Map<String, Object> metadata, Long userId) {
         String feature = (String) metadata.get("feature");
         String duration = (String) metadata.get("duration");
         if (feature == null || duration == null
@@ -146,13 +178,14 @@ public class PremiumPaymentService {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Paid amount does not match the feature price");
         }
 
-        UserResponse updated = userService.applyPremiumPurchase(authenticatedUserId, feature, duration);
+        UserResponse updated = userService.applyPremiumPurchase(userId, feature, duration);
 
         PremiumPurchase purchase = new PremiumPurchase();
-        purchase.setUserId(authenticatedUserId);
+        purchase.setUserId(userId);
         purchase.setFeature(feature);
         purchase.setDuration(duration);
-        purchase.setPaymentReference(request.getReference());
+        purchase.setPaymentReference(reference);
+        purchase.setAmount(expectedPrice); // the amount column added alongside the admin endpoints
         premiumPurchaseRepository.save(purchase);
 
         return updated;
