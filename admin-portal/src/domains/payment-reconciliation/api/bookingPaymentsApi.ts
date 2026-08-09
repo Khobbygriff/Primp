@@ -1,9 +1,11 @@
 import { httpClient } from '@/shared/api/httpClient';
 import {
+  adminBookingStatsSchema,
   bookingResponseSchema,
   bookingStatusHistorySchema,
   bookingStatusSchema,
   paginatedSchema,
+  type AdminBookingStats,
   type BookingResponse,
   type BookingStatus,
   type BookingStatusHistory,
@@ -92,3 +94,8 @@ export const bookingStatusOptions: { value: BookingStatus | 'ALL'; label: string
   { value: 'ALL', label: 'All statuses' },
   ...bookingStatusSchema.options.map((status) => ({ value: status, label: status })),
 ];
+
+export async function getBookingStats(): Promise<AdminBookingStats> {
+  const { data } = await httpClient.get('/api/admin/bookings/stats');
+  return adminBookingStatsSchema.parse(data);
+}

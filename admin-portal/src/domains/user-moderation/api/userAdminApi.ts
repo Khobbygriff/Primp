@@ -1,8 +1,10 @@
 import { httpClient } from '@/shared/api/httpClient';
 import {
   adminUserResponseSchema,
+  adminUserStatsSchema,
   paginatedSchema,
   userResponseSchema,
+  type AdminUserStats,
   type AdminUserResponse,
   type Paginated,
   type UserRole,
@@ -79,4 +81,9 @@ export async function reinstateUser(userId: number): Promise<AdminUserResponse> 
 export async function getUserRatingSummary(userId: number) {
   const { data } = await httpClient.get(`/api/reviews/summary/${userId}`);
   return data;
+}
+
+export async function getUserStats(): Promise<AdminUserStats> {
+  const { data } = await httpClient.get('/api/admin/users/stats');
+  return adminUserStatsSchema.parse(data);
 }
