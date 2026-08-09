@@ -1,9 +1,11 @@
 package com.primp.user_service.service;
 
 import com.primp.user_service.dto.AdminUserResponse;
+import com.primp.user_service.dto.AdminUserStatsResponse;
 import com.primp.user_service.dto.PageResponse;
 import com.primp.user_service.model.User;
 import com.primp.user_service.repository.UserRepository;
+import com.primp.user_service.repository.PremiumPurchaseRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +22,11 @@ import java.util.stream.Collectors;
 public class AdminUserService {
 
     private final UserRepository userRepository;
+    private final PremiumPurchaseRepository premiumPurchaseRepository;
 
-    public AdminUserService(UserRepository userRepository) {
+    public AdminUserService(UserRepository userRepository, PremiumPurchaseRepository premiumPurchaseRepository) {
         this.userRepository = userRepository;
+        this.premiumPurchaseRepository = premiumPurchaseRepository;
     }
 
     public PageResponse<AdminUserResponse> listUsers(String search, String roleParam,
@@ -82,5 +86,21 @@ public class AdminUserService {
         // different decisions.
 
         return new AdminUserResponse(userRepository.save(user));
+    }
+
+    public AdminUserStatsResponse getStats() {
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+
+        AdminUserStatsResponse stats = new AdminUserStatsResponse();
+        stats.setTotalUsers(userRepository.count());
+        stats.setTotalClients(userRepository.countByRole(User.Role.CLIENT));
+        stats.setTotalProfessionals(userRepository.countByRole(User.Role.PROFESSIONAL));
+        stats.setTotalAdmins(userRepository.countByRole(User.Role.ADMIN));
+        stats.setSuspendedUsers(userRepository.countByIsSuspendedTrue());
+        stats.setNewUsersLast30Days(userRepository.countByCreatedAtAfter(thirtyDaysAgo));
+        stats.setPremiumPurchasesLast30Days(premiumPurchaseRepository.countByPurchasedAtAfter(thirtyDaysAgo));
+        stats.setPremiumRevenueLast30Days(premiumPurchaseRepository.sumAmountSince(thirtyDaysAgo));
+        stats.setGeneratedAt(LocalDateTime.now());
+        return stats;
     }
 }

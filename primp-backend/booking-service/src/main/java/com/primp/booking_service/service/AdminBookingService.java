@@ -1,6 +1,7 @@
 package com.primp.booking_service.service;
 
 import com.primp.booking_service.client.PaystackClient;
+import com.primp.booking_service.dto.AdminBookingStatsResponse;
 import com.primp.booking_service.dto.BookingReconciliationResponse;
 import com.primp.booking_service.dto.BookingResponse;
 import com.primp.booking_service.dto.PageResponse;
@@ -88,6 +89,25 @@ public class AdminBookingService {
         response.setMatchesLocalRecord(matches);
         response.setCheckedAt(LocalDateTime.now());
         return response;
+    }
+
+    // Add to the existing service, alongside listBookings/reconcilePayment
+    public AdminBookingStatsResponse getStats() {
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+
+        AdminBookingStatsResponse stats = new AdminBookingStatsResponse();
+        stats.setTotalBookings(bookingRepository.count());
+        stats.setRequestedCount(bookingRepository.countByStatus(Booking.Status.REQUESTED));
+        stats.setConfirmedCount(bookingRepository.countByStatus(Booking.Status.CONFIRMED));
+        stats.setInProgressCount(bookingRepository.countByStatus(Booking.Status.IN_PROGRESS));
+        stats.setCompletedCount(bookingRepository.countByStatus(Booking.Status.COMPLETED));
+        stats.setClosedCount(bookingRepository.countByStatus(Booking.Status.CLOSED));
+        stats.setCancelledCount(bookingRepository.countByStatus(Booking.Status.CANCELLED));
+        stats.setUnreconciledBookings(bookingRepository.countByPaymentReferenceIsNull());
+        stats.setNewBookingsLast30Days(bookingRepository.countByCreatedAtAfter(thirtyDaysAgo));
+        stats.setTotalPrimpFeesCollectedAllTime(bookingRepository.sumPrimpFeeByStatus(Booking.Status.CLOSED));
+        stats.setGeneratedAt(LocalDateTime.now());
+        return stats;
     }
 
     private Long asLong(Object value) {

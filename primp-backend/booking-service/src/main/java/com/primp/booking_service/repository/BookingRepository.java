@@ -14,6 +14,14 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByClientIdAndStatus(Long clientId, Booking.Status status);
     Optional<Booking> findByPaymentReference(String paymentReference);
 
+    long countByPaymentReferenceIsNull();
+    long countByStatus(Booking.Status status);
+    long countByCreatedAtAfter(java.time.LocalDateTime threshold);
+
+    @org.springframework.data.jpa.repository.Query(
+            "SELECT COALESCE(SUM(b.primpFee), 0) FROM Booking b WHERE b.status = :status")
+    double sumPrimpFeeByStatus(@org.springframework.data.repository.query.Param("status") Booking.Status status);
+
     @org.springframework.data.jpa.repository.Query(
             "SELECT b FROM Booking b WHERE " +
                     "(:search IS NULL OR LOWER(b.paymentReference) LIKE LOWER(CONCAT('%', :search, '%')) " +

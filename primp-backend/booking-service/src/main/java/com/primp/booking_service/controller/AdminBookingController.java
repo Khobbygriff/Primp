@@ -1,5 +1,6 @@
 package com.primp.booking_service.controller;
 
+import com.primp.booking_service.dto.AdminBookingStatsResponse;
 import com.primp.booking_service.dto.BookingReconciliationResponse;
 import com.primp.booking_service.dto.BookingResponse;
 import com.primp.booking_service.dto.PageResponse;
@@ -39,6 +40,13 @@ public class AdminBookingController {
             @PathVariable Long bookingId) {
         requireAdmin(callerRole);
         return ResponseEntity.ok(adminBookingService.reconcilePayment(bookingId));
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<AdminBookingStatsResponse> getStats(
+            @RequestHeader(value = "X-User-Role", required = false) String callerRole) {
+        requireAdmin(callerRole);
+        return ResponseEntity.ok(adminBookingService.getStats());
     }
 
     private void requireAdmin(String callerRole) {

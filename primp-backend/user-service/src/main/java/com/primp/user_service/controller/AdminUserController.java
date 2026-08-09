@@ -3,6 +3,7 @@ package com.primp.user_service.controller;
 import com.primp.user_service.dto.AdminUserResponse;
 import com.primp.user_service.dto.PageResponse;
 import com.primp.user_service.dto.SuspendUserRequest;
+import com.primp.user_service.dto.AdminUserStatsResponse;
 import com.primp.user_service.service.AdminUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +47,13 @@ public class AdminUserController {
             @PathVariable Long userId) {
         requireAdmin(callerRole);
         return ResponseEntity.ok(adminUserService.reinstateUser(userId));
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<AdminUserStatsResponse> getStats(
+            @RequestHeader(value = "X-User-Role", required = false) String callerRole) {
+        requireAdmin(callerRole);
+        return ResponseEntity.ok(adminUserService.getStats());
     }
 
     /**

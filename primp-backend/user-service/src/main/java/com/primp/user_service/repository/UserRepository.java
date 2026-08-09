@@ -13,6 +13,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
     List<User> findByRole(User.Role role);
 
+    long countByRole(User.Role role);
+    long countByIsSuspendedTrue();
+    long countByCreatedAtAfter(java.time.LocalDateTime threshold);
+
     @Query("SELECT u FROM User u WHERE " +
             "(:search IS NULL OR LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "  OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%'))) " +

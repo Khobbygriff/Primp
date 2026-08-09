@@ -8,6 +8,11 @@ import java.util.Optional;
 @Repository
 public interface PremiumPurchaseRepository extends JpaRepository<PremiumPurchase, Long> {
     Optional<PremiumPurchase> findByPaymentReference(String paymentReference);
+    long countByPurchasedAtAfter(java.time.LocalDateTime threshold);
+
+    @org.springframework.data.jpa.repository.Query(
+            "SELECT COALESCE(SUM(p.amount), 0) FROM PremiumPurchase p WHERE p.purchasedAt >= :threshold")
+    double sumAmountSince(@org.springframework.data.repository.query.Param("threshold") java.time.LocalDateTime threshold);
 
     @org.springframework.data.jpa.repository.Query(
             "SELECT p FROM PremiumPurchase p WHERE " +
