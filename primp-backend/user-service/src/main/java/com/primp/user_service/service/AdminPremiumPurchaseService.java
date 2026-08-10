@@ -37,7 +37,7 @@ public class AdminPremiumPurchaseService {
                 Sort.by(Sort.Direction.DESC, "purchasedAt"));
 
         Page<PremiumPurchase> result = premiumPurchaseRepository.search(
-                (search == null || search.isBlank()) ? null : search.trim(),
+                (search == null || search.isBlank()) ? "" : search.trim(),
                 (feature == null || feature.isBlank()) ? null : feature.toUpperCase(),
                 pageable);
 

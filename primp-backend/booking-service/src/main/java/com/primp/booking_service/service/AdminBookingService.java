@@ -51,7 +51,7 @@ public class AdminBookingService {
                 Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Booking> result = bookingRepository.search(
-                (search == null || search.isBlank()) ? null : search.trim(),
+                (search == null || search.isBlank()) ? "" : search.trim(),
                 status, hasReference, userId, pageable);
 
         List<BookingResponse> items = result.getContent().stream()

@@ -44,10 +44,8 @@ public class AdminUserService {
                 Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<User> result = userRepository.searchUsers(
-                (search == null || search.isBlank()) ? null : search.trim(),
-                role,
-                includeSuspended,
-                pageable);
+                (search == null || search.isBlank()) ? "" : search.trim(),
+                role, includeSuspended, pageable);
 
         List<AdminUserResponse> items = result.getContent().stream()
                 .map(AdminUserResponse::new)
