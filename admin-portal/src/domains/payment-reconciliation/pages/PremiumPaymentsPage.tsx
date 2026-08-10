@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { BackendPendingNotice } from '@/shared/components/BackendPendingNotice';
 import { Toolbar, SearchInput, SelectFilter, ToolbarSpacer } from '@/shared/components/Toolbar';
 import { Pagination } from '@/shared/components/Pagination';
 import { LoadingState, EmptyState, ErrorBanner } from '@/shared/components/StateViews';
@@ -30,14 +29,6 @@ export function PremiumPaymentsPage() {
       <PageHeader
         title="Premium feature payments"
         subtitle="Priority Listing, Extended Portfolio, Verified Badge, Client Loyalty Tools, and Earnings Analytics unlocks — all currently invisible outside the database (PremiumPurchaseRepository has no controller today)."
-      />
-
-      <BackendPendingNotice
-        endpoints={[
-          'GET /api/admin/premium-purchases',
-          'POST /api/admin/premium-purchases/{id}/reconcile',
-          "PremiumPurchase.amount column (doesn't exist yet — see api-contracts.ts)",
-        ]}
       />
 
       <Toolbar>

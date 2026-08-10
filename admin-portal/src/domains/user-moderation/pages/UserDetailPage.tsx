@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { BackendPendingNotice } from '@/shared/components/BackendPendingNotice';
 import { LoadingState, ErrorBanner, EmptyState } from '@/shared/components/StateViews';
 import { StatusBadge } from '@/shared/components/StatusBadge';
 import { useUserQuery } from '@/domains/user-moderation/hooks/useUserQuery';
@@ -55,14 +54,6 @@ export function UserDetailPage() {
       </Link>
 
       <PageHeader title="User detail" subtitle={`Internal ID ${parsedId}`} />
-
-      <BackendPendingNotice
-        endpoints={[
-          'POST /api/admin/users/{id}/suspend',
-          'POST /api/admin/users/{id}/reinstate',
-          'GET /api/admin/bookings?userId=… (transaction history below)',
-        ]}
-      />
 
       {userQuery.isLoading && <LoadingState label="Loading profile…" />}
       {userQuery.isError && <ErrorBanner message={normalizeApiError(userQuery.error).message} />}

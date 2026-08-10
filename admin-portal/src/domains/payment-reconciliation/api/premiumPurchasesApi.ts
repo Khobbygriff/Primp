@@ -14,17 +14,6 @@ export interface ListPremiumPurchasesParams {
   feature?: PremiumFeature | 'ALL';
 }
 
-/**
- * BACKEND DEPENDENCY: PremiumPurchase.java (the JPA entity) is written
- * and actively populated by PremiumPaymentService#verify, but
- * PremiumPurchaseRepository has ZERO controller wired to it anywhere in
- * user-service — every premium unlock is currently invisible outside the
- * database. This is the single highest-value backend addition for
- * reconciliation, since it's pure read exposure of data that already
- * exists (unlike the booking gaps above, no new persistence is needed —
- * only a controller + optionally the `amount` column noted in
- * api-contracts.ts).
- */
 export async function listPremiumPurchases(
   params: ListPremiumPurchasesParams,
 ): Promise<Paginated<PremiumPurchase>> {

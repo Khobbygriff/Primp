@@ -23,14 +23,6 @@ export interface ListBookingPaymentsParams {
   userId?: number;
 }
 
-/**
- * BACKEND DEPENDENCY: no global booking listing exists. BookingController
- * only exposes /api/bookings/client/{clientId} and
- * /api/bookings/professional/{professionalId} — both owner-scoped, and
- * both would require an admin to already know which user to look under.
- * Reconciliation needs the inverse direction: "find the booking for this
- * Paystack reference," independent of who the client/professional was.
- */
 export async function listBookingPayments(
   params: ListBookingPaymentsParams,
 ): Promise<Paginated<BookingResponse>> {
@@ -50,12 +42,6 @@ export async function listBookingPayments(
   return paginatedSchema(bookingResponseSchema).parse(data);
 }
 
-/**
- * Existing endpoint (BookingController#getBookingById) — BUT it currently
- * requires `authenticatedUserId` to be the booking's client or
- * professional (BookingService#getBookingById). An admin session will
- * get a 403 here until that check adds an admin bypass.
- */
 export async function getBooking(bookingId: number): Promise<BookingResponse> {
   const { data } = await httpClient.get(`/api/bookings/${bookingId}`);
   return bookingResponseSchema.parse(data);
@@ -69,22 +55,13 @@ export async function getBookingHistory(bookingId: number): Promise<BookingStatu
 
 export interface ReconciliationResult {
   bookingId: number;
-  localPaymentReference: string | null;
+  paymentReference: string | null;
   paystackStatus: string;
   paystackAmount: number | null;
   matchesLocalRecord: boolean;
   checkedAt: string;
 }
 
-/**
- * BACKEND DEPENDENCY: no live-reconciliation endpoint exists. Today,
- * booking-service only calls Paystack's verify API once, at
- * PaymentService#verify — after that, whatever status was true at that
- * instant is trusted forever. This proposed endpoint would have the
- * backend re-call Paystack's GET /transaction/verify/{reference} (see
- * PaystackClient#verifyTransaction) on demand and diff it against the
- * stored Booking row, without re-running booking creation.
- */
 export async function reconcileBookingPayment(bookingId: number): Promise<ReconciliationResult> {
   const { data } = await httpClient.post(`/api/admin/bookings/${bookingId}/reconcile-payment`);
   return data as ReconciliationResult;
