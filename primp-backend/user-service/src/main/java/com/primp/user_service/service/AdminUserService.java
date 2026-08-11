@@ -95,16 +95,23 @@ public class AdminUserService {
         user.setIsSuspended(false);
         user.setSuspendedAt(null);
         user.setSuspendedReason(null);
-        // Deliberately NOT flipping isAvailable back on — the operator
-        // should have to re-enable visibility explicitly via the mobile
-        // app's own toggle, since "reinstated" and "actively listed" are
-        // different decisions.
+
+        boolean isProfessional = user.getRole() == User.Role.PROFESSIONAL;
+
+        // Clients have no visibility toggle of their own, so reinstating a
+        // client must restore isAvailable directly. Professionals DO have
+        // one (Edit Profile), so theirs stays off deliberately — see (4) below.
+        if (!isProfessional) {
+            user.setIsAvailable(true);
+        }
 
         AdminUserResponse response = new AdminUserResponse(userRepository.save(user));
 
-        notificationClient.sendNotification(
-                userId, "ACCOUNT_REINSTATED", "Your account has been reinstated",
-                "Your account is no longer suspended. Note: your profile stays hidden from clients until you re-enable visibility in Edit Profile.");
+        String body = isProfessional
+                ? "Your account is no longer suspended. Note: your profile stays hidden from clients until you re-enable visibility in Edit Profile."
+                : "Your account is no longer suspended. You can book services again.";
+
+        notificationClient.sendNotification(userId, "ACCOUNT_REINSTATED", "Your account has been reinstated", body);
 
         return response;
     }
