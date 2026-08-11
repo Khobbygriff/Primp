@@ -18,6 +18,17 @@ public class AdminUserResponse {
     private LocalDateTime suspendedAt;
     private String suspendedReason;
     private LocalDateTime createdAt;
+    private Boolean isPriorityListingActive;
+    private Boolean hasExtendedPortfolio;
+    private Boolean isVerifiedBadge;
+    private Boolean hasClientLoyaltyTools;
+    private Boolean hasEarningsAnalytics;
+    private LocalDateTime priorityListingExpiresAt;
+    private LocalDateTime clientLoyaltyToolsExpiresAt;
+    private LocalDateTime earningsAnalyticsExpiresAt;
+    private Double workLatitude;
+    private Double workLongitude;
+    private Integer serviceRadiusKm;
 
     public AdminUserResponse(User user) {
         this.id = user.getId();
@@ -34,6 +45,17 @@ public class AdminUserResponse {
         this.suspendedAt = user.getSuspendedAt();
         this.suspendedReason = user.getSuspendedReason();
         this.createdAt = user.getCreatedAt();
+        this.isPriorityListingActive = user.getIsPriorityListingActive();
+        this.hasExtendedPortfolio = user.getHasExtendedPortfolio();
+        this.isVerifiedBadge = user.getIsVerifiedBadge();
+        this.hasClientLoyaltyTools = user.getHasClientLoyaltyTools();
+        this.hasEarningsAnalytics = user.getHasEarningsAnalytics();
+        this.priorityListingExpiresAt = user.getPriorityListingExpiresAt();
+        this.clientLoyaltyToolsExpiresAt = user.getClientLoyaltyToolsExpiresAt();
+        this.earningsAnalyticsExpiresAt = user.getEarningsAnalyticsExpiresAt();
+        this.workLatitude = user.getWorkLatitude();
+        this.workLongitude = user.getWorkLongitude();
+        this.serviceRadiusKm = user.getServiceRadiusKm();
     }
 
     public Long getId() { return id; }
@@ -64,4 +86,26 @@ public class AdminUserResponse {
     public void setSuspendedReason(String suspendedReason) { this.suspendedReason = suspendedReason; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public Boolean getIsPriorityListingActive() { return isPriorityListingActive; }
+    public void setIsPriorityListingActive(Boolean isPriorityListingActive) { this.isPriorityListingActive = isPriorityListingActive; }
+    public Boolean getHasExtendedPortfolio() { return hasExtendedPortfolio; }
+    public void setHasExtendedPortfolio(Boolean hasExtendedPortfolio) { this.hasExtendedPortfolio = hasExtendedPortfolio; }
+    public Boolean getIsVerifiedBadge() { return isVerifiedBadge; }
+    public void setIsVerifiedBadge(Boolean isVerifiedBadge) { this.isVerifiedBadge = isVerifiedBadge; }
+    public Boolean getHasClientLoyaltyTools() { return hasClientLoyaltyTools; }
+    public void setHasClientLoyaltyTools(Boolean hasClientLoyaltyTools) { this.hasClientLoyaltyTools = hasClientLoyaltyTools; }
+    public Boolean getHasEarningsAnalytics() { return hasEarningsAnalytics; }
+    public void setHasEarningsAnalytics(Boolean hasEarningsAnalytics) { this.hasEarningsAnalytics = hasEarningsAnalytics; }
+    public LocalDateTime getPriorityListingExpiresAt() { return priorityListingExpiresAt; }
+    public void setPriorityListingExpiresAt(LocalDateTime priorityListingExpiresAt) { this.priorityListingExpiresAt = priorityListingExpiresAt; }
+    public LocalDateTime getClientLoyaltyToolsExpiresAt() { return clientLoyaltyToolsExpiresAt; }
+    public void setClientLoyaltyToolsExpiresAt(LocalDateTime clientLoyaltyToolsExpiresAt) { this.clientLoyaltyToolsExpiresAt = clientLoyaltyToolsExpiresAt; }
+    public LocalDateTime getEarningsAnalyticsExpiresAt() { return earningsAnalyticsExpiresAt; }
+    public void setEarningsAnalyticsExpiresAt(LocalDateTime earningsAnalyticsExpiresAt) { this.earningsAnalyticsExpiresAt = earningsAnalyticsExpiresAt; }  
+    public Double getWorkLatitude() { return workLatitude; }
+    public void setWorkLatitude(Double workLatitude) { this.workLatitude = workLatitude; }
+    public Double getWorkLongitude() { return workLongitude; }
+    public void setWorkLongitude(Double workLongitude) { this.workLongitude = workLongitude; }
+    public Integer getServiceRadiusKm() { return serviceRadiusKm; }
+    public void setServiceRadiusKm(Integer serviceRadiusKm) { this.serviceRadiusKm = serviceRadiusKm; }
 }
