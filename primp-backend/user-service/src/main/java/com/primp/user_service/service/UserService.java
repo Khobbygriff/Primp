@@ -90,6 +90,11 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (Boolean.TRUE.equals(user.getIsSuspended())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Your account is suspended and cannot be edited. Contact support if you believe this is a mistake.");
+        }
+
         if (request.getSpecialty() != null) user.setSpecialty(request.getSpecialty());
         if (request.getBio() != null) user.setBio(request.getBio());
         if (request.getLocation() != null) user.setLocation(request.getLocation());
