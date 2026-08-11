@@ -35,9 +35,6 @@ export function UserDetailPage() {
   const userQuery = useUserQuery(parsedId);
   const reinstateMutation = useReinstateUserMutation();
 
-  // This will 404 until GET /api/admin/bookings exists (see
-  // bookingPaymentsApi.ts) — the table below renders its own empty/error
-  // state in the meantime via BackendPendingNotice below it.
   const transactionsQuery = useBookingTransactionsQuery({
     page: 1,
     pageSize: 10,
@@ -118,12 +115,12 @@ export function UserDetailPage() {
                         !userQuery.data.hasEarningsAnalytics && <span>None active</span>}
                     </span>
                   </div>
+                  <div className={styles.field}>
+                    <span className={styles.fieldLabel}>Bio</span>
+                    <span className={styles.fieldValue}>{userQuery.data.bio || '—'}</span>
+                  </div>
                 </>
               )}
-              <div className={styles.field}>
-                <span className={styles.fieldLabel}>Bio</span>
-                <span className={styles.fieldValue}>{userQuery.data.bio || '—'}</span>
-              </div>
             </div>
 
             <div className={styles.actionRow}>
