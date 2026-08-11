@@ -28,6 +28,10 @@ export default function LoginScreen({ navigation }: any) {
         setLoading(true);
         try {
             const response = await login({ email, password });
+            if (response.role === 'ADMIN') { 
+                Alert.alert( 'Admin Account', 'Admin accounts cannot sign in to the Primp mobile app. Please use the Admin Portal instead.' ); 
+                return; 
+            }
             loginStore({
                 id: response.id,
                 name: response.name,

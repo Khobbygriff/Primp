@@ -199,24 +199,26 @@ public class BookingService {
         return new BookingResponse(saved);
     }
 
-    public BookingResponse getBookingById(Long bookingId, Long authenticatedUserId) {
+    public BookingResponse getBookingById(Long bookingId, Long authenticatedUserId, String role) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        if (!booking.getClientId().equals(authenticatedUserId)
-                && !booking.getProfessionalId().equals(authenticatedUserId)) {
+        boolean isParty = booking.getClientId().equals(authenticatedUserId)
+                || booking.getProfessionalId().equals(authenticatedUserId);
+        if (!isParty && !"ADMIN".equals(role)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized");
         }
 
         return new BookingResponse(booking);
     }
 
-    public List<BookingStatusHistoryResponse> getBookingHistory(Long bookingId, Long authenticatedUserId) {
+    public List<BookingStatusHistoryResponse> getBookingHistory(Long bookingId, Long authenticatedUserId, String role) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        if (!booking.getClientId().equals(authenticatedUserId)
-                && !booking.getProfessionalId().equals(authenticatedUserId)) {
+        boolean isParty = booking.getClientId().equals(authenticatedUserId)
+                || booking.getProfessionalId().equals(authenticatedUserId);
+        if (!isParty && !"ADMIN".equals(role)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized");
         }
 

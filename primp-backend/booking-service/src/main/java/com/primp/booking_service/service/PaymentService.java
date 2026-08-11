@@ -92,8 +92,6 @@ public class PaymentService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A payment reference is required");
         }
 
-        // Idempotency: a retried verify call (e.g. app relaunch) should not
-        // create a second booking for the same charge.
         Booking existing = bookingRepository.findByPaymentReference(request.getReference()).orElse(null);
         if (existing != null) {
             return new BookingResponse(existing);
@@ -117,6 +115,39 @@ public class PaymentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This payment does not belong to you");
         }
 
+        return createBookingFromVerifiedPayment(request.getReference(), data, metadata);
+    }
+
+    /**
+     * Entry point for the Paystack webhook — see gateway's
+     * PaystackWebhookController. Skips the ownership check above because
+     * there's no authenticated caller here; trust comes from the webhook's
+     * HMAC signature already having been verified upstream.
+     */
+    @SuppressWarnings("unchecked")
+    public BookingResponse processWebhookPayment(String reference) {
+        Booking existing = bookingRepository.findByPaymentReference(reference).orElse(null);
+        if (existing != null) {
+            return new BookingResponse(existing); // Already created via the client-initiated /verify path.
+        }
+
+        Map<String, Object> data = paystackClient.verifyTransaction(reference);
+
+        String status = (String) data.get("status");
+        if (!"success".equals(status)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment was not successful (status: " + status + ")");
+        }
+
+        Map<String, Object> metadata = (Map<String, Object>) data.get("metadata");
+        if (metadata == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Payment record is missing booking metadata");
+        }
+
+        return createBookingFromVerifiedPayment(reference, data, metadata);
+    }
+
+    /** Shared by both entry points above — the only place a Booking row actually gets created from a Paystack charge. */
+    private BookingResponse createBookingFromVerifiedPayment(String reference, Map<String, Object> data, Map<String, Object> metadata) {
         Double agreedPrice = asDouble(metadata.get("agreedPrice"));
         if (agreedPrice == null) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Payment record is missing the agreed price");
@@ -129,8 +160,9 @@ public class PaymentService {
         }
 
         Long professionalId = asLong(metadata.get("professionalId"));
-        if (professionalId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Payment record is missing the professional");
+        Long clientId = asLong(metadata.get("clientId"));
+        if (professionalId == null || clientId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Payment record is missing client/professional");
         }
 
         BookingRequest bookingRequest = new BookingRequest();
@@ -141,11 +173,11 @@ public class PaymentService {
         bookingRequest.setNotes((String) metadata.get("notes"));
         bookingRequest.setAgreedPrice(agreedPrice);
 
-        BookingResponse created = bookingService.createBooking(authenticatedClientId, bookingRequest);
+        BookingResponse created = bookingService.createBooking(clientId, bookingRequest);
 
         Booking saved = bookingRepository.findById(created.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Booking not found after creation"));
-        saved.setPaymentReference(request.getReference());
+        saved.setPaymentReference(reference);
         bookingRepository.save(saved);
 
         return new BookingResponse(saved);

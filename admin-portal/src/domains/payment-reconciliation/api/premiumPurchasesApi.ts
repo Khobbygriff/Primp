@@ -1,0 +1,44 @@
+import { httpClient } from '@/shared/api/httpClient';
+import {
+  paginatedSchema,
+  premiumPurchaseSchema,
+  type Paginated,
+  type PremiumFeature,
+  type PremiumPurchase,
+} from '@/shared/types/api-contracts';
+
+export interface ListPremiumPurchasesParams {
+  page: number;
+  pageSize: number;
+  search?: string; // paymentReference
+  feature?: PremiumFeature | 'ALL';
+}
+
+export async function listPremiumPurchases(
+  params: ListPremiumPurchasesParams,
+): Promise<Paginated<PremiumPurchase>> {
+  const { data } = await httpClient.get('/api/admin/premium-purchases', {
+    params: {
+      page: params.page,
+      pageSize: params.pageSize,
+      search: params.search || undefined,
+      feature: params.feature && params.feature !== 'ALL' ? params.feature : undefined,
+    },
+  });
+  return paginatedSchema(premiumPurchaseSchema).parse(data);
+}
+
+export interface PremiumReconciliationResult {
+  purchaseId: number;
+  paymentReference: string;
+  paystackStatus: string;
+  paystackAmount: number | null;
+  matchesLocalRecord: boolean;
+  checkedAt: string;
+}
+
+/** BACKEND DEPENDENCY — same pattern as reconcileBookingPayment. */
+export async function reconcilePremiumPurchase(purchaseId: number): Promise<PremiumReconciliationResult> {
+  const { data } = await httpClient.post(`/api/admin/premium-purchases/${purchaseId}/reconcile`);
+  return data as PremiumReconciliationResult;
+}

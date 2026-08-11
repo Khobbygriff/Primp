@@ -1,0 +1,50 @@
+:root {
+  /* Neutral-first palette: this is an operator console for user moderation
+     and money reconciliation. Color is reserved for status meaning
+     (pending / mismatch / suspended), not decoration. */
+  --color-bg: #f6f7f8;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f0f1f3;
+  --color-border: #dfe2e6;
+  --color-border-strong: #c7cbd1;
+
+  --color-text-primary: #14171a;
+  --color-text-secondary: #565c63;
+  --color-text-muted: #8a8f96;
+
+  /* Accent kept out of the Primp mobile app's pink brand deliberately —
+     an admin tool for money + accounts should not visually resemble the
+     consumer product it's auditing. Deep indigo reads as "internal tool." */
+  --color-accent: #3730a3;
+  --color-accent-hover: #2e2789;
+  --color-accent-soft: #eeecfb;
+
+  --color-success: #1a7f4f;
+  --color-success-soft: #e5f5ec;
+  --color-warning: #a35a00;
+  --color-warning-soft: #fdf1e0;
+  --color-danger: #b3261e;
+  --color-danger-soft: #fbeae9;
+  --color-info: #1f5fa8;
+  --color-info-soft: #e7f0fa;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  --shadow-sm: 0 1px 2px rgba(20, 23, 26, 0.06);
+  --shadow-md: 0 4px 16px rgba(20, 23, 26, 0.08);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --nav-width: 232px;
+}
