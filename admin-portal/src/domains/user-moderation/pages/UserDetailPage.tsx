@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { BackendPendingNotice } from '@/shared/components/BackendPendingNotice';
 import { LoadingState, ErrorBanner, EmptyState } from '@/shared/components/StateViews';
 import { StatusBadge } from '@/shared/components/StatusBadge';
 import { useUserQuery } from '@/domains/user-moderation/hooks/useUserQuery';
@@ -17,6 +16,7 @@ import styles from './UserDetailPage.module.css';
 // domain depending on the other.
 import { useBookingTransactionsQuery } from '@/domains/payment-reconciliation/hooks/useBookingTransactionsQuery';
 import { BookingTransactionTable } from '@/domains/payment-reconciliation/components/BookingTransactionTable';
+import { ConfirmDialog } from '@/shared/components/ConfirmDialog';
 
 function initials(name: string): string {
   return name
@@ -30,14 +30,11 @@ function initials(name: string): string {
 export function UserDetailPage() {
   const { userId } = useParams<{ userId: string }>();
   const parsedId = userId ? Number(userId) : null;
-  const [dialogOpen, setDialogOpen] = useState<'suspend' | null>(null);
+  const [dialogOpen, setDialogOpen] = useState<'suspend' | 'reinstate' | null>(null);
 
   const userQuery = useUserQuery(parsedId);
   const reinstateMutation = useReinstateUserMutation();
 
-  // This will 404 until GET /api/admin/bookings exists (see
-  // bookingPaymentsApi.ts) — the table below renders its own empty/error
-  // state in the meantime via BackendPendingNotice below it.
   const transactionsQuery = useBookingTransactionsQuery({
     page: 1,
     pageSize: 10,
@@ -55,14 +52,6 @@ export function UserDetailPage() {
       </Link>
 
       <PageHeader title="User detail" subtitle={`Internal ID ${parsedId}`} />
-
-      <BackendPendingNotice
-        endpoints={[
-          'POST /api/admin/users/{id}/suspend',
-          'POST /api/admin/users/{id}/reinstate',
-          'GET /api/admin/bookings?userId=… (transaction history below)',
-        ]}
-      />
 
       {userQuery.isLoading && <LoadingState label="Loading profile…" />}
       {userQuery.isError && <ErrorBanner message={normalizeApiError(userQuery.error).message} />}
@@ -126,26 +115,24 @@ export function UserDetailPage() {
                         !userQuery.data.hasEarningsAnalytics && <span>None active</span>}
                     </span>
                   </div>
+                  <div className={styles.field}>
+                    <span className={styles.fieldLabel}>Bio</span>
+                    <span className={styles.fieldValue}>{userQuery.data.bio || '—'}</span>
+                  </div>
                 </>
               )}
-              <div className={styles.field}>
-                <span className={styles.fieldLabel}>Bio</span>
-                <span className={styles.fieldValue}>{userQuery.data.bio || '—'}</span>
-              </div>
             </div>
 
             <div className={styles.actionRow}>
-              <button type="button" className={styles.buttonDanger} onClick={() => setDialogOpen('suspend')}>
+              {!userQuery.data.isSuspended ? (
+                <button type="button" className={styles.buttonDanger} onClick={() => setDialogOpen('suspend')}>
                 Suspend account
-              </button>
-              <button
-                type="button"
-                className={styles.buttonSuccess}
-                onClick={() => parsedId && reinstateMutation.mutate(parsedId)}
-                disabled={reinstateMutation.isPending}
-              >
-                Reinstate
-              </button>
+                </button>
+              ) : (
+                <button type="button" className={styles.buttonSuccess} onClick={() => setDialogOpen('reinstate')}>
+                  Reinstate
+                </button>
+              )}
             </div>
             {reinstateMutation.isError && (
               <p style={{ color: 'var(--color-danger)', fontSize: 12, marginTop: 8 }}>
@@ -176,6 +163,24 @@ export function UserDetailPage() {
           userId={parsedId}
           userName={userQuery.data.name}
           onClose={() => setDialogOpen(null)}
+        />
+      )}
+
+      {dialogOpen === 'reinstate' && userQuery.data && (
+        <ConfirmDialog
+          title={`Reinstate ${userQuery.data.name}?`}
+          body={
+            <p style={{ margin: 0 }}>
+              This clears the suspension. The account stays hidden from discovery until the
+              professional re-enables visibility themselves via the mobile app.
+            </p>
+          }
+          confirmLabel="Reinstate account"
+          isSubmitting={reinstateMutation.isPending}
+          onCancel={() => setDialogOpen(null)}
+          onConfirm={() =>
+            reinstateMutation.mutate(parsedId, { onSuccess: () => setDialogOpen(null) })
+          }
         />
       )}
     </div>

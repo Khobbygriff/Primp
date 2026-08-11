@@ -196,3 +196,31 @@ export interface Paginated<T> {
   totalItems: number;
   totalPages: number;
 }
+
+export const adminUserStatsSchema = z.object({
+  totalUsers: z.number(),
+  totalClients: z.number(),
+  totalProfessionals: z.number(),
+  totalAdmins: z.number(),
+  suspendedUsers: z.number(),
+  newUsersLast30Days: z.number(),
+  premiumPurchasesLast30Days: z.number(),
+  premiumRevenueLast30Days: z.number(),
+  generatedAt: z.string(),
+});
+export type AdminUserStats = z.infer<typeof adminUserStatsSchema>;
+
+export const adminBookingStatsSchema = z.object({
+  totalBookings: z.number(),
+  requestedCount: z.number(),
+  confirmedCount: z.number(),
+  inProgressCount: z.number(),
+  completedCount: z.number(),
+  closedCount: z.number(),
+  cancelledCount: z.number(),
+  unreconciledBookings: z.number(),
+  newBookingsLast30Days: z.number(),
+  totalPrimpFeesCollectedAllTime: z.number(),
+  generatedAt: z.string(),
+});
+export type AdminBookingStats = z.infer<typeof adminBookingStatsSchema>;

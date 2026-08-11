@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { BackendPendingNotice } from '@/shared/components/BackendPendingNotice';
 import { Toolbar, SearchInput, SelectFilter, ToolbarSpacer } from '@/shared/components/Toolbar';
 import { Pagination } from '@/shared/components/Pagination';
 import { LoadingState, EmptyState, ErrorBanner } from '@/shared/components/StateViews';
@@ -33,8 +32,6 @@ export function UserListPage() {
         title="Users"
         subtitle="Search across every client and professional account, including hidden or suspended profiles."
       />
-
-      <BackendPendingNotice endpoints={['GET /api/admin/users', 'POST /api/admin/users/{id}/suspend']} />
 
       <Toolbar>
         <SearchInput

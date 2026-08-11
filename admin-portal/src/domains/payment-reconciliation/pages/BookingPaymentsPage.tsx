@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { PageHeader } from '@/shared/components/PageHeader';
-import { BackendPendingNotice } from '@/shared/components/BackendPendingNotice';
 import { Toolbar, SearchInput, SelectFilter, ToolbarSpacer } from '@/shared/components/Toolbar';
 import { Pagination } from '@/shared/components/Pagination';
 import { LoadingState, EmptyState, ErrorBanner } from '@/shared/components/StateViews';
@@ -39,10 +38,6 @@ export function BookingPaymentsPage() {
       <PageHeader
         title="Booking payments"
         subtitle="Every Paystack-backed booking charge, searchable by reference or booking ID. Reconcile re-verifies a charge against Paystack live rather than trusting the one-time check made at booking creation."
-      />
-
-      <BackendPendingNotice
-        endpoints={['GET /api/admin/bookings', 'POST /api/admin/bookings/{id}/reconcile-payment']}
       />
 
       <Toolbar>
