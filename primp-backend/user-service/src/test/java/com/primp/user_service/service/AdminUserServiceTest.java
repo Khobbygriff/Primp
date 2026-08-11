@@ -1,6 +1,7 @@
 package com.primp.user_service.service;
 
 import com.primp.user_service.dto.AdminUserResponse;
+import com.primp.user_service.client.NotificationClient;
 import com.primp.user_service.model.User;
 import com.primp.user_service.repository.PremiumPurchaseRepository;
 import com.primp.user_service.repository.UserRepository;
@@ -26,11 +27,14 @@ class AdminUserServiceTest {
     @Mock
     private PremiumPurchaseRepository premiumPurchaseRepository;
 
+    @Mock
+    private NotificationClient notificationClient;
+
     private AdminUserService adminUserService;
 
     @BeforeEach
     void setUp() {
-        adminUserService = new AdminUserService(userRepository, premiumPurchaseRepository);
+        adminUserService = new AdminUserService(userRepository, premiumPurchaseRepository, notificationClient);
     }
 
     @Test

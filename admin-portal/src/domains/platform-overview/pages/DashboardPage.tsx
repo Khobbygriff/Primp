@@ -59,6 +59,11 @@ export function DashboardPage() {
             <div className={styles.cardValue}>{bookingStats.data.newBookingsLast30Days}</div>
             <div className={styles.cardHint}>{bookingStats.data.requestedCount} currently pending</div>
           </div>
+          <div className={styles.card}>
+            <div className={styles.cardLabel}>Cancelled bookings</div>
+            <div className={styles.cardValue}>{bookingStats.data.cancelledCount}</div>
+            <div className={styles.cardHint}>of {bookingStats.data.totalBookings} total</div>
+          </div>
         </div>
       )}
 

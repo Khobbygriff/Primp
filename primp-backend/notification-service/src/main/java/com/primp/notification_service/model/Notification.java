@@ -44,7 +44,9 @@ public class Notification {
         BOOKING_CONFIRMED,
         BOOKING_CANCELLED,
         BOOKING_COMPLETED,
-        NEW_REVIEW
+        NEW_REVIEW,
+        ACCOUNT_SUSPENDED,
+        ACCOUNT_REINSTATED
     }
 
     // Getters and Setters

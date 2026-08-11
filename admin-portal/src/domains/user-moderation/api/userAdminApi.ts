@@ -33,6 +33,11 @@ export async function listUsers(params: ListUsersParams): Promise<Paginated<Admi
   return paginatedSchema(adminUserResponseSchema).parse(data);
 }
 
+export async function getAdminUserDetail(userId: number): Promise<AdminUserResponse> {
+  const { data } = await httpClient.get(`/api/admin/users/${userId}`);
+  return adminUserResponseSchema.parse(data);
+}
+
 export async function getUserProfile(userId: number): Promise<UserResponse> {
   const { data } = await httpClient.get(`/api/auth/profile/${userId}`);
   return userResponseSchema.parse(data);

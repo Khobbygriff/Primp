@@ -1,5 +1,6 @@
 package com.primp.user_service.service;
 
+import com.primp.user_service.client.NotificationClient;
 import com.primp.user_service.dto.AdminUserResponse;
 import com.primp.user_service.dto.AdminUserStatsResponse;
 import com.primp.user_service.dto.PageResponse;
@@ -23,10 +24,14 @@ public class AdminUserService {
 
     private final UserRepository userRepository;
     private final PremiumPurchaseRepository premiumPurchaseRepository;
+    private final NotificationClient notificationClient;
 
-    public AdminUserService(UserRepository userRepository, PremiumPurchaseRepository premiumPurchaseRepository) {
+    public AdminUserService(UserRepository userRepository,
+                            PremiumPurchaseRepository premiumPurchaseRepository,
+                            NotificationClient notificationClient) {
         this.userRepository = userRepository;
         this.premiumPurchaseRepository = premiumPurchaseRepository;
+        this.notificationClient = notificationClient;
     }
 
     public PageResponse<AdminUserResponse> listUsers(String search, String roleParam,
@@ -54,6 +59,12 @@ public class AdminUserService {
         return new PageResponse<>(items, page, pageSize, result.getTotalElements(), result.getTotalPages());
     }
 
+    public AdminUserResponse getUserDetail(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return new AdminUserResponse(user);
+    }
+
     public AdminUserResponse suspendUser(Long userId, String reason) {
         if (reason == null || reason.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A suspension reason is required");
@@ -68,7 +79,13 @@ public class AdminUserService {
         // filter that UserService#getProfessionals already applies.
         user.setIsAvailable(false);
 
-        return new AdminUserResponse(userRepository.save(user));
+        AdminUserResponse response = new AdminUserResponse(userRepository.save(user));
+
+        notificationClient.sendNotification(
+                userId, "ACCOUNT_SUSPENDED", "Your account has been suspended",
+                "Reason: " + reason.trim() + ". If you believe this was a mistake, contact support to request a review.");
+
+        return response;
     }
 
     public AdminUserResponse reinstateUser(Long userId) {
@@ -83,7 +100,13 @@ public class AdminUserService {
         // app's own toggle, since "reinstated" and "actively listed" are
         // different decisions.
 
-        return new AdminUserResponse(userRepository.save(user));
+        AdminUserResponse response = new AdminUserResponse(userRepository.save(user));
+
+        notificationClient.sendNotification(
+                userId, "ACCOUNT_REINSTATED", "Your account has been reinstated",
+                "Your account is no longer suspended. Note: your profile stays hidden from clients until you re-enable visibility in Edit Profile.");
+
+        return response;
     }
 
     public AdminUserStatsResponse getStats() {

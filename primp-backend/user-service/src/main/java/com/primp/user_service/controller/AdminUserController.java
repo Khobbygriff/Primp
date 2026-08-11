@@ -32,6 +32,14 @@ public class AdminUserController {
         return ResponseEntity.ok(adminUserService.listUsers(search, role, includeSuspended, page, pageSize));
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<AdminUserResponse> getUser(
+            @RequestHeader(value = "X-User-Role", required = false) String callerRole,
+            @PathVariable Long userId) {
+        requireAdmin(callerRole);
+        return ResponseEntity.ok(adminUserService.getUserDetail(userId));
+    }
+
     @PostMapping("/{userId}/suspend")
     public ResponseEntity<AdminUserResponse> suspend(
             @RequestHeader(value = "X-User-Role", required = false) String callerRole,
